@@ -1,0 +1,30 @@
+[
+    {
+        "Flight Number": "AI101",
+        "From": "New York",
+        "To": "London",
+        "Price": 450,
+        "Duration": 7
+    },
+    {
+        "Flight Number": "BA202",
+        "From": "London",
+        "To": "Dubai",
+        "Price": 350,
+        "Duration": 6
+    },
+    {
+        "Flight Number": "EK303",
+        "From": "Dubai",
+        "To": "Sydney",
+        "Price": 950,
+        "Duration": 14
+    },
+    {
+        "Flight Number": "DL505",
+        "From": "Tokyo",
+        "To": "New York",
+        "Price": 1200,
+        "Duration": 12
+    }
+]

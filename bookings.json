@@ -1,0 +1,18 @@
+[
+    {
+        "Flight Number": "EK303",
+        "From": "Dubai",
+        "To": "Sydney",
+        "Price": 950,
+        "Duration": 14,
+        "Passenger Name": "john"
+    },
+    {
+        "Flight Number": "BA202",
+        "From": "London",
+        "To": "Dubai",
+        "Price": 350,
+        "Duration": 6,
+        "Passenger Name": "dirk"
+    }
+]
