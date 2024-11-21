@@ -72,7 +72,7 @@ with st.sidebar.form(key='add_flight_form'):
         flights_data.append(new_flight)
         save_data(DATA_FILE, flights_data)
         st.sidebar.success(f"Flight {flight_number} added successfully!")
-        st.rerun()  # Use st.rerun() instead of st.experimental_rerun()
+        st.experimental_rerun()
 
 # Sidebar Search Function
 st.sidebar.header("Search Flights")
@@ -87,25 +87,20 @@ if st.sidebar.button("Search"):
     else:
         st.error("No matching flights found.")
 
-# **Main Page: Display and Manage Flights**
+# Main Page Layout
+col1, col2 = st.columns(2)
 
-# Columns for layout
-col1, col2 = st.columns([2, 1])
-
+# **Available Flights**
 with col1:
-    # Sorting flights by price or duration
     st.header("Available Flights")
     sort_key = st.selectbox("Sort By", ["Price", "Duration"], key="sort_key")
     key_mapping = {"Price": "Price", "Duration": "Duration"}
     selected_key = key_mapping[sort_key]
 
-    # Apply quicksort
     sorted_flights = quicksort(flights_data, selected_key)
     sorted_flights_df = pd.DataFrame(sorted_flights)
-
     st.dataframe(sorted_flights_df)
 
-    # **Book Flight Feature**
     st.subheader("Book a Flight")
     book_flight_number = st.selectbox("Select Flight to Book", [flight["Flight Number"] for flight in flights_data], key="book_flight_number")
     passenger_name = st.text_input("Passenger Name", key="passenger_name")
@@ -117,66 +112,23 @@ with col1:
             bookings_data.append(booking_details)
             save_data(BOOKINGS_FILE, bookings_data)
             st.success(f"Flight {book_flight_number} successfully booked for {passenger_name}!")
-
-            # Display booking details with design
-            st.subheader("Your Booking Details")
-            st.markdown(
-                f"""
-                <div style="border: 2px solid #4CAF50; border-radius: 8px; padding: 20px; background-color: #f0f8ff; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
-                    <h3 style="text-align: center; color: #4CAF50;">Booking Confirmation</h3>
-                    <hr style="border: 1px solid #4CAF50;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="font-weight: bold; color: #333;">Flight Number:</span>
-                        <span style="color: #555;">{booking_details['Flight Number']}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="font-weight: bold; color: #333;">From:</span>
-                        <span style="color: #555;">{booking_details['From']}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="font-weight: bold; color: #333;">To:</span>
-                        <span style="color: #555;">{booking_details['To']}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="font-weight: bold; color: #333;">Price:</span>
-                        <span style="color: #555;">${booking_details['Price']}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="font-weight: bold; color: #333;">Duration:</span>
-                        <span style="color: #555;">{booking_details['Duration']} hours</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="font-weight: bold; color: #333;">Passenger Name:</span>
-                        <span style="color: #555;">{booking_details['Passenger Name']}</span>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
         else:
             st.error("Flight not found.")
 
-# **Update and Delete Available Flight**
+# **Update and Delete Available Flights**
 with col2:
-    st.header("Update or Delete Available Flight")
+    st.subheader("Update or Delete Available Flights")
+    update_col, delete_col = st.columns([3, 2])  # Adjust column width proportions
 
-    # Select a flight to update or delete
     flight_to_update = st.selectbox("Select Flight to Update or Delete", [flight["Flight Number"] for flight in flights_data], key="flight_to_update")
     selected_flight = next((flight for flight in flights_data if flight["Flight Number"] == flight_to_update), None)
 
     if selected_flight:
-        st.write(f"Updating or Deleting flight: {selected_flight['Flight Number']}")
-
-        # Inputs for updating the flight
         new_price = st.number_input("New Price", min_value=0, value=selected_flight["Price"], step=50, key="new_price")
         new_duration = st.number_input("New Duration (hours)", min_value=1, value=selected_flight["Duration"], step=1, key="new_duration")
         new_from = st.text_input("New From", value=selected_flight["From"], key="new_from")
         new_to = st.text_input("New To", value=selected_flight["To"], key="new_to")
 
-        # Create columns for side-by-side buttons
-        update_col, delete_col = st.columns(2)
-
-        # Update button
         with update_col:
             if st.button("Update Flight"):
                 selected_flight["Price"] = new_price
@@ -185,32 +137,27 @@ with col2:
                 selected_flight["To"] = new_to
                 save_data(DATA_FILE, flights_data)
                 st.success(f"Flight {flight_to_update} updated successfully!")
-                st.rerun()  # Reload to reflect changes
+                st.experimental_rerun()
 
-        # Delete button
         with delete_col:
             if st.button("Delete Flight"):
                 flights_data = [flight for flight in flights_data if flight["Flight Number"] != flight_to_update]
                 save_data(DATA_FILE, flights_data)
                 st.success(f"Flight {flight_to_update} deleted successfully!")
-                st.rerun()  # Reload to reflect changes
-    else:
-        st.error("Please select a flight to update or delete.")
+                st.experimental_rerun()
 
-# **Display and Delete Booked Flights**
+# **Booked Flights**
 st.header("Booked Flights")
 if bookings_data:
     booked_flights_df = pd.DataFrame(bookings_data)
     st.dataframe(booked_flights_df)
 
-    # Delete booked flight functionality
-    flight_to_delete = st.selectbox("Select a Booking to Delete", [booking["Flight Number"] for booking in bookings_data], key="flight_to_delete")
-    if flight_to_delete:
-        if st.button(f"Delete Booking for {flight_to_delete}"):
-            bookings_data = [booking for booking in bookings_data if booking["Flight Number"] != flight_to_delete]
-            save_data(BOOKINGS_FILE, bookings_data)
-            st.success(f"Booking for flight {flight_to_delete} deleted successfully!")
-            st.rerun()  # Reload to reflect changes
+    st.subheader("Delete a Booking")
+    booked_flight_to_delete = st.selectbox("Select Booking to Delete", [f["Flight Number"] for f in bookings_data], key="booked_flight_to_delete")
+    if st.button("Delete Booking"):
+        bookings_data = [b for b in bookings_data if b["Flight Number"] != booked_flight_to_delete]
+        save_data(BOOKINGS_FILE, bookings_data)
+        st.success(f"Booking for flight {booked_flight_to_delete} deleted successfully!")
+        st.experimental_rerun()
 else:
     st.write("No bookings yet.")
-
